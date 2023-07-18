@@ -4,9 +4,12 @@
 #include "../../globals.cpp"
 #include "radioInput.cpp"
 #include "textoInput.cpp"
+#include "../../indexador.cpp"
 #include <iostream>
 
 struct ManipulaCsv{
+
+    Indexador *indexadorPtr;
 
     std::shared_ptr<sf::RectangleShape> formaRadioInput;
     std::shared_ptr<sf::Color> corBranca, corRadioSelecionado;
@@ -21,7 +24,9 @@ struct ManipulaCsv{
     int opcaoRadio{0};
     std::string textoInput;
 
-    void construtor(){
+    void construtor(Indexador *indexador){
+
+        this->indexadorPtr = indexador;
 
         utilitarios.carregaIcones(iconeVoltar, texturaIconeVoltar, 0.05, 0.05, 50, 50, "leftArrow.png");
         utilitarios.carregaIcones(iconeConfirmar, 0.05, 0.05, 1115, 350);
@@ -62,7 +67,16 @@ struct ManipulaCsv{
             validaNomeCsv() &&
             opcaoRadio
         ){
-            std::cout << textoInput << " importado com sucesso!!!\n";
+            switch(opcaoRadio){
+                case 1:
+                    indexadorPtr->importarCsv(textoInput);
+                    break;
+                case 2:
+                    indexadorPtr->exportarCsv(textoInput);
+                    break;
+            };
+            
+
             paginaAtual = 1;
             opcaoRadio = 0;
             textoInput = "";
@@ -86,7 +100,7 @@ struct ManipulaCsv{
 
     bool validaNomeCsv(){
         int tamTextoInput = textoInput.length();
-        return (tamTextoInput >= 4 && (textoInput.substr(tamTextoInput - 4, 4) == ".csv") );
+        return (tamTextoInput >= 5 && (textoInput.substr(tamTextoInput - 4, 4) == ".csv") );
     }
 
 };

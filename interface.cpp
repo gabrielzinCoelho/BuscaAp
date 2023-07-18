@@ -5,6 +5,7 @@
 #include "globals.cpp"
 #include "./pages/tabela/index.cpp"
 #include "./pages/manipulaCsv/index.cpp"
+#include "indexador.cpp"
 
 struct InterfaceGrafica{
 
@@ -14,6 +15,7 @@ struct InterfaceGrafica{
     int paginaAtual;
     Tabela tabela;
     ManipulaCsv csv;
+    Indexador indexador;
 
     void construtor(){
 
@@ -28,7 +30,7 @@ struct InterfaceGrafica{
         corFundoTela = std::make_shared<sf::Color>(211, 211, 211, 255);
 
         tabela.construtor();
-        csv.construtor();
+        csv.construtor(&indexador);
 
         paginaAtual = 1;
 

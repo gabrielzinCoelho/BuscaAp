@@ -45,6 +45,8 @@
         "iostream": "cpp",
         "limits": "cpp",
         "numbers": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "fstream": "cpp",
+        "cstring": "cpp"
     }
 }
