@@ -28,8 +28,6 @@ struct Indexador{
         int numRegistrosImportados = registrosCsv.second - registrosCsv.first;
         int diferencaCapacidade = capacidade - numImoveis - numRegistrosImportados;
 
-        std::cout << numRegistrosImportados << " " << capacidade << " " << diferencaCapacidade;
-
         if(diferencaCapacidade < 0)
             redimensiona(-diferencaCapacidade);
 
@@ -46,7 +44,35 @@ struct Indexador{
         for(int i{0}; i<numImoveis; i++){
             std::cout << imoveis[i].id << "\n";
         }
-        std::cout << "\n" << numImoveis << " " << capacidade << "\n";
+    }
+
+    std::pair<int, Imovel **> buscaImoveis(){ // recebe um filtro e uma ordenação -> retorna um array de ponteiros (um para cada imovel)
+
+        int numImoveisFiltrados{0}, capacidadeImoveisFiltrados{10}, incrementoCapacidade{10};
+        Imovel **arrImoveisPtr = new Imovel*[capacidadeImoveisFiltrados];
+
+        for(int i{0}; i<numImoveis; i++){
+
+            if(imoveis[i].id != -1 && true){ //aplicar filtro aqui
+
+                if(numImoveisFiltrados >= capacidadeImoveisFiltrados){ // redimensionar array de ponteiros
+
+                    capacidadeImoveisFiltrados += incrementoCapacidade;
+                    Imovel **aux = new Imovel*[capacidadeImoveisFiltrados];
+                    std::memcpy(aux, arrImoveisPtr, sizeof(Imovel*)*numImoveisFiltrados);
+                    delete[] arrImoveisPtr;
+                    arrImoveisPtr = aux;
+                    
+                }
+
+                arrImoveisPtr[numImoveisFiltrados++] = imoveis + i;
+
+            }
+
+        }
+
+        return std::make_pair(numImoveisFiltrados, arrImoveisPtr);
+
     }
 
 };

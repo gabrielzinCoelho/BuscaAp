@@ -29,7 +29,7 @@ struct InterfaceGrafica{
 
         corFundoTela = std::make_shared<sf::Color>(211, 211, 211, 255);
 
-        tabela.construtor();
+        tabela.construtor(&indexador);
         csv.construtor(&indexador);
 
         paginaAtual = 1;
@@ -53,8 +53,10 @@ struct InterfaceGrafica{
             if(e->type == sf::Event::Closed)
                 window->close();
             
-            if(paginaAtual == 1)
+            if(paginaAtual == 1){
+                tabela.atualizaPagina();
                 tabela.eventosTabela(e, paginaAtual);
+            }
             else if(paginaAtual == 2)
                 csv.eventosCsv(e, paginaAtual);
 
