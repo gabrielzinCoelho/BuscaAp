@@ -25,7 +25,7 @@ struct InterfaceGrafica{
             sf::Style::Titlebar | sf::Style::Close
         );
         window->setPosition(sf::Vector2i(0, 0));
-        window->setFramerateLimit(10);
+        window->setFramerateLimit(60);
 
         corFundoTela = std::make_shared<sf::Color>(211, 211, 211, 255);
 

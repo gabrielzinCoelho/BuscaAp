@@ -19,9 +19,13 @@ struct ColunaLinha{
     }
 
     void desenhaColuna(std::shared_ptr<sf::RenderWindow> windowPtr, std::string textoColuna){
+
+        int numeroCaracteresMaximo{largura/(instanciaTexto->getCharacterSize() * proporcaoCaractere)};
         
         instanciaTexto->setPosition(posX, posY);
-        instanciaTexto->setString(textoColuna);
+        instanciaTexto->setString(
+            textoColuna.size() > numeroCaracteresMaximo ? textoColuna.substr(0, numeroCaracteresMaximo - 3) + "..." : textoColuna
+        );
         windowPtr->draw(*instanciaTexto);
 
     }

@@ -22,7 +22,7 @@ struct Tabela{
 
     CabecalhoTabela cabecalho;
 
-    int idTabela{0};
+    int idTabela{0}, idRegistroSelecionado{-1};
     std::pair<int, Imovel **> resultadoBusca; // numero de linhas filtradas e array de ponteiro dos imoveis filtrados
 
     LinhaTabela *linhasTabela = new LinhaTabela[numLinhas - 1];
@@ -40,9 +40,9 @@ struct Tabela{
         this->indexadorPtr = indexador;
         
         corFundo = std::make_shared<sf::Color>(169,169,169);
-        corFundoLinha_1 = std::make_shared<sf::Color>(29, 155, 240);
-        corFundoLinha_2 = std::make_shared<sf::Color>(29, 155, 240);
-        corFundoLinhaSelecionada = std::make_shared<sf::Color>(29, 155, 240);
+        corFundoLinha_1 = std::make_shared<sf::Color>(173, 215, 255);
+        corFundoLinha_2 = std::make_shared<sf::Color>(212, 234, 255);
+        corFundoLinhaSelecionada = std::make_shared<sf::Color>(47,79,79);
 
         formaRetangulo = std::make_shared<sf::RectangleShape>(sf::Vector2f(largura, altura));
         formaRetangulo->setFillColor(*corFundo);
@@ -66,7 +66,7 @@ struct Tabela{
 
     void eventosTabela(std::shared_ptr<sf::Event> event, int &paginaAtual){
 
-        if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 1115, 1140, 50, 75) ){
+        if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 1115, 1140, 50, 75)){
             paginaAtual = 2;
             paginaAtualizada = true;
         }
@@ -80,6 +80,8 @@ struct Tabela{
                 idTabela = novoIdTabela;
             }
 
+        }else if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 140, 1140, 125, 600)){
+            idRegistroSelecionado = idTabela + (event->mouseButton.y - 125)/25;
         }
 
 
@@ -99,7 +101,11 @@ struct Tabela{
         int idTabelaFinal = resultadoBusca.first - 1 > idTabela + (numLinhas - 2) ? idTabela + (numLinhas - 2) : resultadoBusca.first - 1;
 
         for(int i{idTabela}; i<=idTabelaFinal; i++){
-            linhasTabela[i - idTabela].desenhaLinha(windowPtr, resultadoBusca.second[i]);
+            linhasTabela[i - idTabela].desenhaLinha(
+                windowPtr, 
+                resultadoBusca.second[i],
+                idRegistroSelecionado == i ? corFundoLinhaSelecionada : (i % 2 == 0 ? corFundoLinha_1 : corFundoLinha_2)
+            );
         }
     }
 

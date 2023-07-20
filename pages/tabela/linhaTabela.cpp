@@ -50,12 +50,16 @@ struct LinhaTabela{
 
     }
 
-    void desenhaLinha(std::shared_ptr<sf::RenderWindow> windowPtr, Imovel *imovelPtr){
+    void desenhaLinha(std::shared_ptr<sf::RenderWindow> windowPtr, Imovel *imovelPtr, std::shared_ptr<sf::Color> corFundo){
+
+        formaRetangulo->setFillColor(*corFundo);
+        windowPtr->draw(*formaRetangulo);
+
         // dados que serao mostrados e cor fundo atualizados a cada renderização
         colunasLinha[0].desenhaColuna(windowPtr, std::to_string(imovelPtr->id));
         colunasLinha[1].desenhaColuna(windowPtr, imovelPtr->endereco);
         colunasLinha[2].desenhaColuna(windowPtr, imovelPtr->imobiliaria);
-        colunasLinha[3].desenhaColuna(windowPtr, std::to_string(imovelPtr->precoAluguel));
+        colunasLinha[3].desenhaColuna(windowPtr, "R$ " + std::to_string(imovelPtr->precoAluguel));
         colunasLinha[4].desenhaColuna(windowPtr, imovelPtr->descricao);
     }
 
