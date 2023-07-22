@@ -4,6 +4,7 @@
 #include "cabecalhoTabela.cpp"
 #include "../../indexador.cpp"
 #include "linhaTabela.cpp"
+#include "colunaInfo.cpp"
 
 struct Tabela{
 
@@ -26,14 +27,9 @@ struct Tabela{
     std::pair<int, Imovel *> resultadoBusca; // numero de linhas filtradas e array de ponteiro dos imoveis filtrados
 
     LinhaTabela *linhasTabela = new LinhaTabela[numLinhas - 1];
+    ColunaInfo *colunasTabela = new ColunaInfo[5];
 
-    std::pair<std::string, int> colunasTabela[5] = {
-        std::make_pair("Id", 5),
-        std::make_pair("Endereco", 30),
-        std::make_pair("Imobiliaria", 20),
-        std::make_pair("Aluguel", 10),
-        std::make_pair("Descricao", 35)
-    };
+    std::pair<int, bool> ordenacaoTabela = std::make_pair(1, true);
 
     void construtor(Indexador *indexador){
 
@@ -49,8 +45,14 @@ struct Tabela{
         formaRetangulo->setPosition(posX, posY);
 
         int alturaLinha{altura/numLinhas};
+        
+        colunasTabela[0].construtor("Id", 5, 1);
+        colunasTabela[1].construtor("Endereco", 30, 2);
+        colunasTabela[2].construtor("Imobiliaria", 20, 3);
+        colunasTabela[3].construtor("Aluguel", 10, 4);
+        colunasTabela[4].construtor("Descricao", 35, 0);
 
-        cabecalho.construtor(posX, posY, largura, alturaLinha, colunasTabela, 5);
+        cabecalho.construtor(posX, posY, largura, alturaLinha, colunasTabela, 5, &ordenacaoTabela, &paginaAtualizada);
 
         for(int i{0}; i<numLinhas - 1; i++)
             linhasTabela[i].construtor(posX, posY + (i + 1)*alturaLinha, largura, alturaLinha, colunasTabela, 5);
@@ -65,6 +67,8 @@ struct Tabela{
     }
 
     void eventosTabela(std::shared_ptr<sf::Event> event, int &paginaAtual){
+
+        cabecalho.eventosCabecalho(event);
 
         if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 1115, 1140, 50, 75)){
             paginaAtual = 2;
@@ -112,12 +116,13 @@ struct Tabela{
     void atualizaPagina(){
 
         if(paginaAtualizada){
+            std::cout << "eba! pagina atualizada com sucesso\n";
             // atualiza pagina
             delete[] this->resultadoBusca.second; // desaloca array da busca anterior
             this->resultadoBusca.first = 0;
             idTabela = 0;
 
-            this->resultadoBusca = indexadorPtr->buscaImoveis();
+            this->resultadoBusca = indexadorPtr->buscaImoveis(&ordenacaoTabela);
             std::cout << resultadoBusca.first << "\n";
             paginaAtualizada = false;
         }

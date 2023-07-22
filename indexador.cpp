@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <cstring>
+#include <utility>
 #include "gerenciaCsv.cpp"
 #include "gerenciaDat.cpp"
 #include "imovel.cpp"
@@ -28,7 +29,9 @@ struct Indexador{
 
     void exportarCsv(std::string nomeArquivo){
         
-        std::pair<int, Imovel*> dadosBinario = instanciaDat.leituraDados();
+        std::pair<int, bool> ordenacaoDados = std::make_pair(1, true);
+        
+        std::pair<int, Imovel*> dadosBinario = instanciaDat.leituraDados(&ordenacaoDados);
 
         if(!dadosBinario.first)
             return; //nenhum dado para ser exportado
@@ -38,9 +41,9 @@ struct Indexador{
         
     }
 
-    std::pair<int, Imovel*> buscaImoveis(){
+    std::pair<int, Imovel*> buscaImoveis(std::pair<int, bool> *ordenacaoTabela){
 
-        return instanciaDat.leituraDados();
+        return instanciaDat.leituraDados(ordenacaoTabela);
 
     }
 

@@ -3,6 +3,7 @@
 #include <memory>
 #include "../../globals.cpp"
 #include "colunasCabecalho.cpp"
+#include "colunaInfo.cpp"
 
 struct CabecalhoTabela{
 
@@ -10,10 +11,16 @@ struct CabecalhoTabela{
     std::shared_ptr<sf::Color> corFundo;
     std::shared_ptr<sf::Text> instanciaTexto;
 
+    sf::Sprite iconeOrdenacaoAsc, iconeOrdenacaoDesc;
+    sf::Texture texturaIconeOrdenacaoAsc, texturaIconeOrdenacaoDesc;
+
     ColunaCabecalho *colunasCabecalho;
     int numColunas;
 
-    void construtor(float posX, float posY, float largura, float altura, std::pair<std::string, int> *colunas, int numColunas){
+    void construtor(
+        float posX, float posY, float largura, float altura, ColunaInfo *colunas, int numColunas, std::pair<int, bool> *ordenacaoTabela,
+        bool *paginaAtualizada
+    ){
 
         corFundo = std::make_shared<sf::Color>(29, 155, 240);
 
@@ -26,6 +33,9 @@ struct CabecalhoTabela{
         instanciaTexto->setFillColor(sf::Color::Black);
         instanciaTexto->setCharacterSize(16);
 
+        utilitarios.carregaIcones(iconeOrdenacaoAsc, texturaIconeOrdenacaoAsc, 0.025, 0.025, 0, 0, "sortArrowAsc.png");
+        utilitarios.carregaIcones(iconeOrdenacaoDesc, texturaIconeOrdenacaoDesc, 0.025, 0.025, 0, 0, "sortArrowDesc.png");
+
         this->numColunas = numColunas;
         colunasCabecalho = new ColunaCabecalho[numColunas];
 
@@ -33,7 +43,7 @@ struct CabecalhoTabela{
 
         for(int i{0}; i<numColunas; i++){
 
-            larguraColuna = largura * colunas[i].second / float(100);
+            larguraColuna = largura * colunas[i].proporcaoLargura / float(100);
 
             colunasCabecalho[i].construtor(
                 instanciaTexto,
@@ -41,7 +51,12 @@ struct CabecalhoTabela{
                 posY,
                 larguraColuna,
                 altura,
-                colunas[i].first
+                colunas[i].nome,
+                &iconeOrdenacaoAsc,
+                &iconeOrdenacaoDesc,
+                colunas[i].idOrdenacao,
+                ordenacaoTabela,
+                paginaAtualizada
             );
 
             posX += larguraColuna;
@@ -50,8 +65,9 @@ struct CabecalhoTabela{
 
     };
 
-    void eventosCabecalho(){
-
+    void eventosCabecalho(std::shared_ptr<sf::Event> event){
+        for(int i{0}; i<numColunas; i++)
+            colunasCabecalho[i].eventosColuna(event);
     }
 
     void desenhaCabecalho(std::shared_ptr<sf::RenderWindow> windowPtr){

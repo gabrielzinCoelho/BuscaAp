@@ -3,6 +3,7 @@
 #include <memory>
 #include "../../globals.cpp"
 #include "colunasLinha.cpp"
+#include "colunaInfo.cpp"
 
 struct LinhaTabela{
 
@@ -13,7 +14,7 @@ struct LinhaTabela{
     ColunaLinha *colunasLinha;
     int numColunas;
 
-    void construtor(float posX, float posY, float largura, float altura, std::pair<std::string, int> *colunas, int numColunas){
+    void construtor(float posX, float posY, float largura, float altura, ColunaInfo *colunas, int numColunas){
 
         formaRetangulo = std::make_shared<sf::RectangleShape>(sf::Vector2f(largura, altura));
         formaRetangulo->setPosition(posX, posY);
@@ -30,7 +31,7 @@ struct LinhaTabela{
 
         for(int i{0}; i<numColunas; i++){
 
-            larguraColuna = largura * colunas[i].second / float(100);
+            larguraColuna = largura * colunas[i].proporcaoLargura / float(100);
 
             colunasLinha[i].construtor(
                 instanciaTexto,
