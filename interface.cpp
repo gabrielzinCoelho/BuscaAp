@@ -29,6 +29,7 @@ struct InterfaceGrafica{
 
         corFundoTela = std::make_shared<sf::Color>(211, 211, 211, 255);
 
+        indexador.construtor();
         tabela.construtor(&indexador);
         csv.construtor(&indexador);
 

@@ -10,69 +10,39 @@ struct Indexador{
     GerenciaCsv instanciaCsv;
     GerenciaDat instanciaDat;
 
-    int numImoveis{0}, capacidade{50};
-    Imovel *imoveis = new Imovel[capacidade];
-
-    void redimensiona(int incrementoCapacidade=50){
-        capacidade += incrementoCapacidade;
-        Imovel *aux = new Imovel[capacidade];
-
-        std::memcpy(aux, imoveis, sizeof(Imovel)*numImoveis);
-        delete[] imoveis;
-        imoveis = aux;
+    void construtor(){
+        instanciaDat.construtor();
+        //instanciaCsv.construtor();
     }
 
     void importarCsv(std::string nomeArquivo){
+        
         std::pair registrosCsv = instanciaCsv.importarCsv(nomeArquivo);
-       
-        int numRegistrosImportados = registrosCsv.second - registrosCsv.first;
-        int diferencaCapacidade = capacidade - numImoveis - numRegistrosImportados;
+        
+        if(!registrosCsv.first)
+            return; // nenhum registro importado pelo csv
 
-        if(diferencaCapacidade < 0)
-            redimensiona(-diferencaCapacidade);
-
-        std::memcpy(imoveis + numImoveis, registrosCsv.first, sizeof(Imovel)*numRegistrosImportados);
-        numImoveis += numRegistrosImportados;
+        instanciaDat.insercaoEmMassa(registrosCsv.second, registrosCsv.first);
         
     }
 
     void exportarCsv(std::string nomeArquivo){
-        instanciaCsv.exportarCsv(nomeArquivo, std::make_pair(imoveis, numImoveis));
+        
+        std::pair<int, Imovel*> dadosBinario = instanciaDat.leituraDados();
+
+        if(!dadosBinario.first)
+            return; //nenhum dado para ser exportado
+        
+        instanciaCsv.exportarCsv(nomeArquivo, dadosBinario);
+        return;
+        
     }
-    
-    void printImoveis(){
-        for(int i{0}; i<numImoveis; i++){
-            std::cout << imoveis[i].id << "\n";
-        }
-    }
 
-    std::pair<int, Imovel **> buscaImoveis(){ // recebe um filtro e uma ordenação -> retorna um array de ponteiros (um para cada imovel)
+    std::pair<int, Imovel*> buscaImoveis(){
 
-        int numImoveisFiltrados{0}, capacidadeImoveisFiltrados{10}, incrementoCapacidade{10};
-        Imovel **arrImoveisPtr = new Imovel*[capacidadeImoveisFiltrados];
-
-        for(int i{0}; i<numImoveis; i++){
-
-            if(imoveis[i].id != -1 && true){ //aplicar filtro aqui
-
-                if(numImoveisFiltrados >= capacidadeImoveisFiltrados){ // redimensionar array de ponteiros
-
-                    capacidadeImoveisFiltrados += incrementoCapacidade;
-                    Imovel **aux = new Imovel*[capacidadeImoveisFiltrados];
-                    std::memcpy(aux, arrImoveisPtr, sizeof(Imovel*)*numImoveisFiltrados);
-                    delete[] arrImoveisPtr;
-                    arrImoveisPtr = aux;
-                    
-                }
-
-                arrImoveisPtr[numImoveisFiltrados++] = imoveis + i;
-
-            }
-
-        }
-
-        return std::make_pair(numImoveisFiltrados, arrImoveisPtr);
+        return instanciaDat.leituraDados();
 
     }
+
 
 };

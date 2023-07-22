@@ -23,7 +23,7 @@ struct Tabela{
     CabecalhoTabela cabecalho;
 
     int idTabela{0}, idRegistroSelecionado{-1};
-    std::pair<int, Imovel **> resultadoBusca; // numero de linhas filtradas e array de ponteiro dos imoveis filtrados
+    std::pair<int, Imovel *> resultadoBusca; // numero de linhas filtradas e array de ponteiro dos imoveis filtrados
 
     LinhaTabela *linhasTabela = new LinhaTabela[numLinhas - 1];
 
@@ -103,7 +103,7 @@ struct Tabela{
         for(int i{idTabela}; i<=idTabelaFinal; i++){
             linhasTabela[i - idTabela].desenhaLinha(
                 windowPtr, 
-                resultadoBusca.second[i],
+                resultadoBusca.second + i,
                 idRegistroSelecionado == i ? corFundoLinhaSelecionada : (i % 2 == 0 ? corFundoLinha_1 : corFundoLinha_2)
             );
         }

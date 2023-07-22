@@ -10,37 +10,39 @@ struct GerenciaCsv{
     std::fstream arquivoCsv;
     const std::string caminhoPastaArquivos{"./dataFiles/"};
 
-    void exportarCsv(std::string nomeArquivo, std::pair<Imovel *, int> dadosImoveis){
+    void exportarCsv(std::string nomeArquivo, std::pair<int, Imovel *> dadosImoveis){
         arquivoCsv.open(caminhoPastaArquivos + nomeArquivo, std::ios::out);
 
         if(!arquivoCsv.good())
             return;
         
-        for(int i{0}; i<dadosImoveis.second; i++){
-            arquivoCsv << dadosImoveis.first[i].id << ";" 
-            << '"' << dadosImoveis.first[i].endereco << '"' << ';'
-            << '"' << dadosImoveis.first[i].descricao << '"' << ';'
-            << '"' << dadosImoveis.first[i].imobiliaria << '"' << ';'
-            << dadosImoveis.first[i].area << ";"
-            << dadosImoveis.first[i].numQuartos << ";"
-            << dadosImoveis.first[i].numBanheiros << ";"
-            << dadosImoveis.first[i].vagasGaragem << ";"
-            << dadosImoveis.first[i].precoAluguel << ";"
-            << dadosImoveis.first[i].condominio << ";"
-            << dadosImoveis.first[i].iptu << ";"
-            << dadosImoveis.first[i].seguroIncendio << ";"
+        for(int i{0}; i<dadosImoveis.first; i++){
+            arquivoCsv << dadosImoveis.second[i].id << ";" 
+            << '"' << dadosImoveis.second[i].endereco << '"' << ';'
+            << '"' << dadosImoveis.second[i].descricao << '"' << ';'
+            << '"' << dadosImoveis.second[i].imobiliaria << '"' << ';'
+            << dadosImoveis.second[i].area << ";"
+            << dadosImoveis.second[i].numQuartos << ";"
+            << dadosImoveis.second[i].numBanheiros << ";"
+            << dadosImoveis.second[i].vagasGaragem << ";"
+            << dadosImoveis.second[i].precoAluguel << ";"
+            << dadosImoveis.second[i].condominio << ";"
+            << dadosImoveis.second[i].iptu << ";"
+            << dadosImoveis.second[i].seguroIncendio << ";"
             << "\n";
         }
 
         arquivoCsv.close();
+        delete[] dadosImoveis.second; // desalocar dados buscados no arquivo binário
+        return;
 
     }
 
-    std::pair<Imovel *, Imovel *> importarCsv(std::string nomeArquivo){
+    std::pair<int, Imovel *> importarCsv(std::string nomeArquivo){
         arquivoCsv.open(caminhoPastaArquivos + nomeArquivo, std::ios::in);
 
         if(!arquivoCsv.good())
-            return std::make_pair(nullptr, nullptr);
+            return std::make_pair(0, nullptr);
 
         
         int numImoveis{0}, capacidade{10}, incrementoCapacidade{10};
@@ -84,7 +86,7 @@ struct GerenciaCsv{
         }
 
         arquivoCsv.close();
-        return std::make_pair(imoveis, imoveis + numImoveis);
+        return std::make_pair(numImoveis, imoveis);
     }
 
 
