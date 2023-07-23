@@ -5,6 +5,7 @@
 #include "../../indexador.cpp"
 #include "linhaTabela.cpp"
 #include "colunaInfo.cpp"
+#include "filtroTabela.cpp"
 
 struct Tabela{
 
@@ -27,9 +28,13 @@ struct Tabela{
     std::pair<int, Imovel *> resultadoBusca; // numero de linhas filtradas e array de ponteiro dos imoveis filtrados
 
     LinhaTabela *linhasTabela = new LinhaTabela[numLinhas - 1];
+
     ColunaInfo *colunasTabela = new ColunaInfo[5];
 
+    FiltroTabela componenteFiltro;
+
     std::pair<int, bool> ordenacaoTabela = std::make_pair(1, true);
+    std::pair<int, std::string> filtroTabela = std::make_pair(1, "");
 
     void construtor(Indexador *indexador){
 
@@ -54,6 +59,8 @@ struct Tabela{
 
         cabecalho.construtor(posX, posY, largura, alturaLinha, colunasTabela, 5, &ordenacaoTabela, &paginaAtualizada);
 
+        componenteFiltro.construtor(posX, posY - 55, 1000, 30, colunasTabela, 5, &filtroTabela, &paginaAtualizada);
+
         for(int i{0}; i<numLinhas - 1; i++)
             linhasTabela[i].construtor(posX, posY + (i + 1)*alturaLinha, largura, alturaLinha, colunasTabela, 5);
         
@@ -62,15 +69,16 @@ struct Tabela{
         utilitarios.carregaIcones(iconeAdicionar, texturaIconeAdicionar, 0.05, 0.05, 1070, 625, "addHome.png");
         utilitarios.carregaIcones(iconeDeletar, texturaIconeDeletar, 0.05, 0.05, 1115, 625, "delHome.png");
 
-        utilitarios.carregaIcones(iconeCsv, texturaIconeCsv, 0.05, 0.05, 1115, 50, "csvIcon.png");
+        utilitarios.carregaIcones(iconeCsv, texturaIconeCsv, 0.05, 0.05, 140, 625, "csvIcon.png");
          
     }
 
     void eventosTabela(std::shared_ptr<sf::Event> event, int &paginaAtual){
 
         cabecalho.eventosCabecalho(event);
+        componenteFiltro.eventosFiltro(event);
 
-        if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 1115, 1140, 50, 75)){
+        if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 140, 165, 625, 650)){
             paginaAtual = 2;
             paginaAtualizada = true;
         }
@@ -101,6 +109,7 @@ struct Tabela{
         windowPtr->draw(iconeCsv);
 
         cabecalho.desenhaCabecalho(windowPtr);
+        componenteFiltro.desenhaFiltro(windowPtr);
 
         int idTabelaFinal = resultadoBusca.first - 1 > idTabela + (numLinhas - 2) ? idTabela + (numLinhas - 2) : resultadoBusca.first - 1;
 
@@ -116,14 +125,13 @@ struct Tabela{
     void atualizaPagina(){
 
         if(paginaAtualizada){
-            std::cout << "eba! pagina atualizada com sucesso\n";
             // atualiza pagina
             delete[] this->resultadoBusca.second; // desaloca array da busca anterior
             this->resultadoBusca.first = 0;
             idTabela = 0;
+            idRegistroSelecionado = -1;
 
             this->resultadoBusca = indexadorPtr->buscaImoveis(&ordenacaoTabela);
-            std::cout << resultadoBusca.first << "\n";
             paginaAtualizada = false;
         }
 

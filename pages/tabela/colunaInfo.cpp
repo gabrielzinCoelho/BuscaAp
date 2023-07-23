@@ -5,12 +5,12 @@
 struct ColunaInfo{
     std::string nome;
     float proporcaoLargura;
-    int idOrdenacao;
+    int idColuna;
 
-    void construtor(std::string nome, float proporcaoLargura, int idOrdenacao){
+    void construtor(std::string nome, float proporcaoLargura, int idColuna){
         this->nome = nome;
         this->proporcaoLargura = proporcaoLargura;
-        this -> idOrdenacao = idOrdenacao;
+        this->idColuna = idColuna;
     }
 
 };

@@ -54,7 +54,7 @@ struct CabecalhoTabela{
                 colunas[i].nome,
                 &iconeOrdenacaoAsc,
                 &iconeOrdenacaoDesc,
-                colunas[i].idOrdenacao,
+                colunas[i].idColuna,
                 ordenacaoTabela,
                 paginaAtualizada
             );
