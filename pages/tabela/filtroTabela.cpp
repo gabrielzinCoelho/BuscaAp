@@ -169,7 +169,7 @@ struct FiltroTabela{
 
     float posX, posY, largura, altura;
     std::pair<int, std::string> *filtroTabela{nullptr};
-    bool *paginaAtualizada{nullptr};
+    bool *paginaAtualizada{nullptr}, *filtroAtivado{nullptr};
 
     std::shared_ptr<sf::RectangleShape> formaRetangulo;
     sf::Sprite iconePesquisa;
@@ -180,7 +180,7 @@ struct FiltroTabela{
     
     void construtor(
         float posX, float posY, float largura, float altura, ColunaInfo *colunas, int numColunas, 
-        std::pair<int, std::string> *filtroTabela, bool *paginaAtualizada
+        std::pair<int, std::string> *filtroTabela, bool *paginaAtualizada, bool *filtroAtivado
     ){
 
         formaRetangulo = std::make_shared<sf::RectangleShape>(sf::Vector2f(30, 30));
@@ -195,6 +195,7 @@ struct FiltroTabela{
         this->largura = largura;
         this->filtroTabela = filtroTabela;
         this->paginaAtualizada = paginaAtualizada;
+        this->filtroAtivado = filtroAtivado;
 
         opcaoFiltro.construtor(posX, posY - 30, altura, colunas, numColunas, &filtroTabela->first);
         inputFiltro.construtor(posX, posY, altura, 970, &filtroTabela->second);
@@ -222,6 +223,7 @@ struct FiltroTabela{
             filtroTabela->second.size()
         ){
             *paginaAtualizada = true;
+            *filtroAtivado = true;
         }
         
     }

@@ -5,6 +5,7 @@
 #include "globals.cpp"
 #include "./pages/tabela/index.cpp"
 #include "./pages/manipulaCsv/index.cpp"
+#include "./pages/mostraRegistro/index.cpp"
 #include "indexador.cpp"
 
 struct InterfaceGrafica{
@@ -15,6 +16,7 @@ struct InterfaceGrafica{
     int paginaAtual;
     Tabela tabela;
     ManipulaCsv csv;
+    MostraRegistro mostraRegistro;
     Indexador indexador;
 
     void construtor(){
@@ -32,6 +34,7 @@ struct InterfaceGrafica{
         indexador.construtor();
         tabela.construtor(&indexador);
         csv.construtor(&indexador);
+        mostraRegistro.construtor(&indexador);
 
         paginaAtual = 1;
 
@@ -54,24 +57,38 @@ struct InterfaceGrafica{
             if(e->type == sf::Event::Closed)
                 window->close();
             
-            if(paginaAtual == 1){
-                tabela.atualizaPagina();
-                tabela.eventosTabela(e, paginaAtual);
+            switch(paginaAtual){
+                default:
+                case 1:
+                    tabela.atualizaPagina();
+                    tabela.eventosTabela(e, paginaAtual);
+                    break;
+                case 2:
+                    csv.eventosCsv(e, paginaAtual);
+                    break;
+                case 3:
+                    mostraRegistro.eventosRegistro(e, paginaAtual);
+                    break;
             }
-            else if(paginaAtual == 2)
-                csv.eventosCsv(e, paginaAtual);
-
+            
         }
     };
 
     void draw(){
         window->clear(*corFundoTela);
-        
-        if(paginaAtual == 1){
-            tabela.desenhaTabela(window);
-        }else if(paginaAtual == 2){
-            csv.desenhaCsv(window);
-        }
+
+        switch(paginaAtual){
+                default:
+                case 1:
+                    tabela.desenhaTabela(window);
+                    break;
+                case 2:
+                    csv.desenhaCsv(window);
+                    break;
+                case 3:
+                    mostraRegistro.desenhaRegistro(window);
+                    break;
+            }
 
         window->display();
     };

@@ -20,7 +20,8 @@ struct Tabela{
     std::shared_ptr<sf::Color> corFundo, corFundoLinha_1, corFundoLinha_2, corFundoLinhaSelecionada;
 
     sf::Sprite iconeEdicao, iconeAdicionar, iconeDeletar, iconeCsv;
-    sf::Texture texturaIconeEdicao, texturaIconeAdicionar, texturaIconeDeletar, texturaIconeCsv;
+    sf::Texture texturaIconeEdicao, texturaIconeEdicaoDesativado, texturaIconeAdicionar, texturaIconeAdicionarDesativado, 
+        texturaIconeDeletar, texturaIconeDeletarDesativado, texturaIconeCsv;
 
     CabecalhoTabela cabecalho;
 
@@ -35,6 +36,7 @@ struct Tabela{
 
     std::pair<int, bool> ordenacaoTabela = std::make_pair(1, true);
     std::pair<int, std::string> filtroTabela = std::make_pair(1, "");
+    bool filtroAtivado{false};
 
     void construtor(Indexador *indexador){
 
@@ -53,21 +55,26 @@ struct Tabela{
         
         colunasTabela[0].construtor("Id", 5, 1);
         colunasTabela[1].construtor("Endereco", 30, 2);
-        colunasTabela[2].construtor("Imobiliaria", 20, 3);
-        colunasTabela[3].construtor("Aluguel", 10, 4);
+        colunasTabela[2].construtor("Imobiliaria", 15, 3);
+        colunasTabela[3].construtor("Aluguel", 15, 4);
         colunasTabela[4].construtor("Descricao", 35, 0);
 
         cabecalho.construtor(posX, posY, largura, alturaLinha, colunasTabela, 5, &ordenacaoTabela, &paginaAtualizada);
 
-        componenteFiltro.construtor(posX, posY - 55, 1000, 30, colunasTabela, 5, &filtroTabela, &paginaAtualizada);
+        componenteFiltro.construtor(posX, posY - 55, 1000, 30, colunasTabela, 5, &filtroTabela, &paginaAtualizada, &filtroAtivado);
 
         for(int i{0}; i<numLinhas - 1; i++)
             linhasTabela[i].construtor(posX, posY + (i + 1)*alturaLinha, largura, alturaLinha, colunasTabela, 5);
         
 
-        utilitarios.carregaIcones(iconeEdicao, texturaIconeEdicao, 0.05, 0.05, 1025, 625, "editIcon.png");
+        utilitarios.carregaIcones(iconeEdicao, 0.05, 0.05, 1025, 625);
         utilitarios.carregaIcones(iconeAdicionar, texturaIconeAdicionar, 0.05, 0.05, 1070, 625, "addHome.png");
-        utilitarios.carregaIcones(iconeDeletar, texturaIconeDeletar, 0.05, 0.05, 1115, 625, "delHome.png");
+        utilitarios.carregaIcones(iconeDeletar, 0.05, 0.05, 1115, 625);
+
+        utilitarios.carregaTextura(texturaIconeDeletar, "delHome.png");
+        utilitarios.carregaTextura(texturaIconeDeletarDesativado, "delHomeBlocked.png");
+        utilitarios.carregaTextura(texturaIconeEdicao, "editIcon.png");
+        utilitarios.carregaTextura(texturaIconeEdicaoDesativado, "editIconBlocked.png");
 
         utilitarios.carregaIcones(iconeCsv, texturaIconeCsv, 0.05, 0.05, 140, 625, "csvIcon.png");
          
@@ -94,6 +101,24 @@ struct Tabela{
 
         }else if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 140, 1140, 125, 600)){
             idRegistroSelecionado = idTabela + (event->mouseButton.y - 125)/25;
+            
+        }else if(
+            event->type == sf::Event::MouseButtonPressed && 
+            utilitarios.verificaAreaEvento(event->mouseButton, 1115, 1140, 625, 650) &&
+            idRegistroSelecionado >= 0
+        ){
+            indexadorPtr->deletarImovel(resultadoBusca.second[idRegistroSelecionado].id);
+            idRegistroSelecionado = -1;
+            paginaAtualizada = true;
+
+        }else if(
+            event->type == sf::Event::MouseButtonPressed && 
+            utilitarios.verificaAreaEvento(event->mouseButton, 1025, 1050, 625, 650) &&
+            idRegistroSelecionado >= 0
+        ){
+            paginaAtual = 3;
+            idRegistroSelecionado = -1;
+            paginaAtualizada = true;
         }
 
 
@@ -102,6 +127,14 @@ struct Tabela{
     void desenhaTabela(std::shared_ptr<sf::RenderWindow> windowPtr){
 
         windowPtr->draw(*formaRetangulo);
+
+        if(idRegistroSelecionado >= 0){
+            utilitarios.atualizaTexturaIcone(iconeEdicao, texturaIconeEdicao);
+            utilitarios.atualizaTexturaIcone(iconeDeletar, texturaIconeDeletar);
+        }else{
+            utilitarios.atualizaTexturaIcone(iconeEdicao, texturaIconeEdicaoDesativado);
+            utilitarios.atualizaTexturaIcone(iconeDeletar, texturaIconeDeletarDesativado);
+        }
 
         windowPtr->draw(iconeEdicao);
         windowPtr->draw(iconeAdicionar);
@@ -131,8 +164,14 @@ struct Tabela{
             idTabela = 0;
             idRegistroSelecionado = -1;
 
-            this->resultadoBusca = indexadorPtr->buscaImoveis(&ordenacaoTabela);
+            if(filtroAtivado)
+                this->resultadoBusca = indexadorPtr->buscaImoveis(&ordenacaoTabela, &filtroTabela);
+            else{
+                std::pair<int, std::string> filtroVazio = std::make_pair(0, "");
+                this->resultadoBusca = indexadorPtr->buscaImoveis(&ordenacaoTabela, &filtroVazio);
+            }
             paginaAtualizada = false;
+            filtroAtivado = false;
         }
 
     }

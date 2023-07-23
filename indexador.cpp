@@ -30,8 +30,9 @@ struct Indexador{
     void exportarCsv(std::string nomeArquivo){
         
         std::pair<int, bool> ordenacaoDados = std::make_pair(1, true);
+        std::pair<int, std::string> filtroDados = std::make_pair(0, "");
         
-        std::pair<int, Imovel*> dadosBinario = instanciaDat.leituraDados(&ordenacaoDados);
+        std::pair<int, Imovel*> dadosBinario = instanciaDat.leituraDados(&ordenacaoDados, &filtroDados);
 
         if(!dadosBinario.first)
             return; //nenhum dado para ser exportado
@@ -41,10 +42,14 @@ struct Indexador{
         
     }
 
-    std::pair<int, Imovel*> buscaImoveis(std::pair<int, bool> *ordenacaoTabela){
+    std::pair<int, Imovel*> buscaImoveis(std::pair<int, bool> *ordenacaoTabela, std::pair<int, std::string> *filtroTabela){
 
-        return instanciaDat.leituraDados(ordenacaoTabela);
+        return instanciaDat.leituraDados(ordenacaoTabela, filtroTabela);
 
+    }
+
+    void deletarImovel(int idImovel){
+        instanciaDat.deletarRegistro(idImovel);
     }
 
 
