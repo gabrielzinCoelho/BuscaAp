@@ -53,7 +53,7 @@ struct GerenciaDat{
     }
 
     void insercaoEmMassa(Imovel *imoveisPtr, int numInsercoes){
-        arquivoDat.seekp(0, std::ios::end);
+        arquivoDat.seekp(3*sizeof(int) + numRegistros * sizeof(Imovel));
         arquivoDat.write((char *) imoveisPtr, numInsercoes * sizeof(Imovel));
 
         //chamar odenacao
@@ -393,7 +393,7 @@ struct GerenciaDat{
 
         Imovel aux;
 
-        arquivoDat.seekp(-sizeof(Imovel), std::ios::end);
+        arquivoDat.seekp(3*sizeof(int) + (numRegistros - 1) * sizeof(Imovel));
         arquivoDat.read((char *) &aux, sizeof(Imovel));
 
         return aux.id + 1;
@@ -426,7 +426,7 @@ struct GerenciaDat{
         Imovel aux;
         aux.construtor(valoresImovel);
 
-        arquivoDat.seekp(0, std::ios::end);
+        arquivoDat.seekp(saltoCabecalho + numRegistros * sizeof(Imovel));
         arquivoDat.write((char *) &aux, sizeof(Imovel));
 
         //chamar odenacao

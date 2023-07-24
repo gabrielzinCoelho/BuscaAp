@@ -26,7 +26,7 @@ struct Tabela{
     CabecalhoTabela cabecalho;
 
     int idTabela{0}, idRegistroSelecionado{-1};
-    std::pair<int, Imovel *> resultadoBusca; // numero de linhas filtradas e array de ponteiro dos imoveis filtrados
+    std::pair<int, Imovel *> resultadoBusca = std::make_pair(0, nullptr); // numero de linhas filtradas e array de ponteiro dos imoveis filtrados
 
     LinhaTabela *linhasTabela = new LinhaTabela[numLinhas - 1];
 
@@ -100,6 +100,8 @@ struct Tabela{
             }
 
         }else if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 140, 1140, 125, 600)){
+            if((idTabela + (event->mouseButton.y - 125)/25) >= resultadoBusca.first)
+                return;
             idRegistroSelecionado = idTabela + (event->mouseButton.y - 125)/25;
             
         }else if( //deletar imovel
