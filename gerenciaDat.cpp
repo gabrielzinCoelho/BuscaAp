@@ -363,4 +363,76 @@ struct GerenciaDat{
         escreverCabecalho();
     }
 
+    Imovel* buscarImovelSelecionado(int idImovel){
+
+        std::pair<int, std::string> filtroDeletarRegistro = std::make_pair(1, std::to_string(idImovel));
+        int indexImovel = buscaBinaria(&filtroDeletarRegistro);
+
+        if(indexImovel == -1)
+            return {nullptr};
+        
+        int saltoCabecalho = 3*sizeof(int);
+
+        Imovel *aux = new Imovel;
+        arquivoDat.seekp(saltoCabecalho + indexImovel * sizeof(Imovel));
+        arquivoDat.read((char *) aux, sizeof(Imovel));
+
+        return aux;
+    }
+
+    int calculaIdNovoImovel(){
+
+        if(!numRegistros)
+            return 1;
+        
+        tipoOrdenacao = 1;
+        sentidoOrdenacao = 1;
+        escreverCabecalho();
+
+        ordenaArquivo();
+
+        Imovel aux;
+
+        arquivoDat.seekp(-sizeof(Imovel), std::ios::end);
+        arquivoDat.read((char *) &aux, sizeof(Imovel));
+
+        return aux.id + 1;
+
+    }
+
+    void editarImovel(std::string *valoresImovel){
+
+        std::pair<int, std::string> filtroEditarRegistro = std::make_pair(1, valoresImovel[0]);
+        int indexImovel = buscaBinaria(&filtroEditarRegistro);
+
+        if(indexImovel == -1)
+            return;
+        
+        int saltoCabecalho = 3*sizeof(int);
+
+        Imovel aux;
+        aux.construtor(valoresImovel);
+
+        arquivoDat.seekp(saltoCabecalho + indexImovel * sizeof(Imovel));
+        arquivoDat.write((char *) &aux, sizeof(Imovel));
+        return;
+
+    }
+
+    void criarImovel(std::string *valoresImovel){
+        
+        int saltoCabecalho = 3*sizeof(int);
+
+        Imovel aux;
+        aux.construtor(valoresImovel);
+
+        arquivoDat.seekp(0, std::ios::end);
+        arquivoDat.write((char *) &aux, sizeof(Imovel));
+
+        //chamar odenacao
+        numRegistros++;
+        escreverCabecalho();
+
+    }
+
 };

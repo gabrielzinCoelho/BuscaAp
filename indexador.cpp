@@ -11,6 +11,8 @@ struct Indexador{
     GerenciaCsv instanciaCsv;
     GerenciaDat instanciaDat;
 
+    int imovelSelecionadoId{-1};
+
     void construtor(){
         instanciaDat.construtor();
         //instanciaCsv.construtor();
@@ -48,9 +50,24 @@ struct Indexador{
 
     }
 
+    Imovel* buscarImovelSelecionado(){
+        return instanciaDat.buscarImovelSelecionado(imovelSelecionadoId);
+    }
+
     void deletarImovel(int idImovel){
         instanciaDat.deletarRegistro(idImovel);
     }
 
+    int calculaIdNovoImovel(){
+        return instanciaDat.calculaIdNovoImovel();
+    }
+
+    void editarImovel(std::string *valoresImovel){
+        return instanciaDat.editarImovel(valoresImovel);
+    }
+
+    void criarImovel(std::string *valoresImovel){
+        return instanciaDat.criarImovel(valoresImovel);
+    }
 
 };

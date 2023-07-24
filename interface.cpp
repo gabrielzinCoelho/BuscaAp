@@ -67,6 +67,7 @@ struct InterfaceGrafica{
                     csv.eventosCsv(e, paginaAtual);
                     break;
                 case 3:
+                    mostraRegistro.atualizaPagina();
                     mostraRegistro.eventosRegistro(e, paginaAtual);
                     break;
             }

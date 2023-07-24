@@ -11,7 +11,7 @@ struct Tabela{
 
     bool paginaAtualizada{true}; // controla a atualização da página para buscar novos registros
 
-    Indexador *indexadorPtr;
+    Indexador *indexadorPtr{nullptr};
 
     const int numLinhas{20};
     const float posX{140}, posY{100}, largura{1000}, altura{500};
@@ -102,7 +102,7 @@ struct Tabela{
         }else if(event->type == sf::Event::MouseButtonPressed && utilitarios.verificaAreaEvento(event->mouseButton, 140, 1140, 125, 600)){
             idRegistroSelecionado = idTabela + (event->mouseButton.y - 125)/25;
             
-        }else if(
+        }else if( //deletar imovel
             event->type == sf::Event::MouseButtonPressed && 
             utilitarios.verificaAreaEvento(event->mouseButton, 1115, 1140, 625, 650) &&
             idRegistroSelecionado >= 0
@@ -111,12 +111,21 @@ struct Tabela{
             idRegistroSelecionado = -1;
             paginaAtualizada = true;
 
-        }else if(
+        }else if( //editar imovel
             event->type == sf::Event::MouseButtonPressed && 
             utilitarios.verificaAreaEvento(event->mouseButton, 1025, 1050, 625, 650) &&
             idRegistroSelecionado >= 0
         ){
             paginaAtual = 3;
+            indexadorPtr->imovelSelecionadoId = resultadoBusca.second[idRegistroSelecionado].id;
+            idRegistroSelecionado = -1;
+            paginaAtualizada = true;
+        }else if( //criar imovel
+            event->type == sf::Event::MouseButtonPressed && 
+            utilitarios.verificaAreaEvento(event->mouseButton, 1070, 1095, 625, 650)
+        ){
+            paginaAtual = 3;
+            indexadorPtr->imovelSelecionadoId = -1;
             idRegistroSelecionado = -1;
             paginaAtualizada = true;
         }
