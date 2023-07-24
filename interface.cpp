@@ -13,13 +13,15 @@ struct InterfaceGrafica{
     std::shared_ptr<sf::RenderWindow> window;
     std::shared_ptr<sf::Color> corFundoTela;
     
-    int paginaAtual;
+    int paginaAtual; // variavel de controle para alternar entre as páginas da aplicação
     Tabela tabela;
     ManipulaCsv csv;
     MostraRegistro mostraRegistro;
     Indexador indexador;
 
     void construtor(){
+
+        // configurações de renderização
 
         window = std::make_shared<sf::RenderWindow>(
             sf::VideoMode(larguraTela, alturaTela),
@@ -31,17 +33,19 @@ struct InterfaceGrafica{
 
         corFundoTela = std::make_shared<sf::Color>(211, 211, 211, 255);
 
+        // inicializa as telas da aplicação e os controladores
+
         indexador.construtor();
         tabela.construtor(&indexador);
         csv.construtor(&indexador);
         mostraRegistro.construtor(&indexador);
 
-        paginaAtual = 1;
+        paginaAtual = 1; // pagina da tabela renderizada inicialmente
 
     };
 
     void run(){
-
+        // loop para capturar eventos e renderizar a tela
         while (window->isOpen()){
             events();
             draw();
@@ -57,6 +61,7 @@ struct InterfaceGrafica{
             if(e->type == sf::Event::Closed)
                 window->close();
             
+            // distribui os eventos respectivos a cada página
             switch(paginaAtual){
                 default:
                 case 1:
@@ -78,6 +83,7 @@ struct InterfaceGrafica{
     void draw(){
         window->clear(*corFundoTela);
 
+        // cada página é responsável por definir como seus elementos serão renderizados
         switch(paginaAtual){
                 default:
                 case 1:

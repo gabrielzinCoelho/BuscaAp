@@ -11,11 +11,17 @@ struct GerenciaCsv{
     const std::string caminhoPastaArquivos{"./dataFiles/"};
 
     void exportarCsv(std::string nomeArquivo, std::pair<int, Imovel *> dadosImoveis){
+
+        //exportar dados salvos no binário para arquivo csv
+
         arquivoCsv.open(caminhoPastaArquivos + nomeArquivo, std::ios::out);
 
         if(!arquivoCsv.good())
             return;
         
+        //recebe um arr de registros, alocados dinamicamente, resultante da busca no arquivo bin
+        //escreve no .csv de saída com a devida formatação
+
         for(int i{0}; i<dadosImoveis.first; i++){
             arquivoCsv << dadosImoveis.second[i].id << ";" 
             << '"' << dadosImoveis.second[i].endereco << '"' << ';'
@@ -56,6 +62,8 @@ struct GerenciaCsv{
 
         std::string linhaRegistro;
 
+        // lê cada linha do arquivo csv, divide os campos pelo separador (;) e aloca um registro referente na memoria
+
         while( std::getline(arquivoCsv, linhaRegistro) ){
 
             if(numImoveis >= capacidade){
@@ -68,6 +76,8 @@ struct GerenciaCsv{
             }
             
             indexSubstr = indexCampoRegistro = 0;
+
+            // utiliza a variavel indexSubstr para indexar cada campo do registro no csv
 
             for(int i{0}; i<int(linhaRegistro.size()); i++){
                 if(linhaRegistro[i] == separador){
@@ -82,11 +92,12 @@ struct GerenciaCsv{
                 }
             }
 
+            // atualiza os campos do struct alocado de acordo com os valores capturados do csv
             imoveis[numImoveis++].construtor(camposRegistro);
         }
 
         arquivoCsv.close();
-        return std::make_pair(numImoveis, imoveis);
+        return std::make_pair(numImoveis, imoveis); // retorna o ponteiro dos imoveis alocados e a quantidade
     }
 
 

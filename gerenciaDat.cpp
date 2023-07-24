@@ -16,7 +16,7 @@ struct GerenciaDat{
 
             //arquivoBinario não existe e será criado
             arquivoDat.open(caminhoPastaArquivos + "imoveis.dat", std::ios::out);
-            // criar cabeçalho: numRegistros e sortType
+            // criar cabeçalho: numRegistros, tipo de ordenação e sentido (1 -> crescente, -1 -> decrescente)
             numRegistros = 0;
             tipoOrdenacao = 1;
             sentidoOrdenacao = 1;
@@ -53,26 +53,33 @@ struct GerenciaDat{
     }
 
     void insercaoEmMassa(Imovel *imoveisPtr, int numInsercoes){
+
+        //insere, no arquivo bin, um conjunto de imoveis alocados na memoria
+
         arquivoDat.seekp(3*sizeof(int) + numRegistros * sizeof(Imovel));
         arquivoDat.write((char *) imoveisPtr, numInsercoes * sizeof(Imovel));
 
-        //chamar odenacao
+        //atualiza o numero de registros
         numRegistros += numInsercoes;
         escreverCabecalho();
     }
 
     std::pair<int, Imovel*> leituraDados(std::pair<int, bool> *ordenacaoTabela, std::pair<int, std::string> *filtroTabela){
 
+        // leitura dos dados do arquivo bin
+
         if(!numRegistros)
             return std::make_pair(0, nullptr);
         
         if(filtroTabela->first && filtroTabela->second.size())
-            return leituraDadosFiltrados(ordenacaoTabela, filtroTabela);
+            return leituraDadosFiltrados(ordenacaoTabela, filtroTabela); // aplica filtros na busca dos dados
         
-        return leituraTodosDados(ordenacaoTabela, filtroTabela);
+        return leituraTodosDados(ordenacaoTabela, filtroTabela); // busca todos os dados, apena os ordena
     }
 
     std::pair<int, Imovel*> leituraTodosDados(std::pair<int, bool> *ordenacaoTabela, std::pair<int, std::string> *filtroTabela){
+
+        // busca todos os dados, ordena, aloca dinamicamente na memoria e os retorna
 
         tipoOrdenacao = ordenacaoTabela->first;
         sentidoOrdenacao = ordenacaoTabela->second ? 1 : -1;
@@ -91,10 +98,16 @@ struct GerenciaDat{
     std::pair<int, Imovel*> leituraDadosFiltrados(std::pair<int, bool> *ordenacaoTabela, std::pair<int, std::string> *filtroTabela){
         
         int tipoOrdenacaoAntigo{tipoOrdenacao}, sentidoOrdenacaoAntigo{sentidoOrdenacao};
-        int idBusca = buscaBinaria(filtroTabela);
+        int idBusca = buscaBinaria(filtroTabela); // utiliza o codigo de busca binaria para encontrar o primeiro valor correspondente ao filtro
 
         if(idBusca == -1)
-            return std::make_pair(0, nullptr);
+            return std::make_pair(0, nullptr); // caso não encontre nenhum registro correspondente
+        
+
+        // após encontrar o indice do primeiro registro que correspondeu a busca, ele percorre os valores proximos a esse registro no arquivo
+        // caso encontre outros registros que também correspondam ao filtro, aloca todos na memoria e retorna
+
+        // dessa forma a pesquisa por filtro não fica restrita a um unico valor
 
         int indexInicio{idBusca}, indexFinal{idBusca}, saltoCabecalho{3*sizeof(int)};
 
@@ -102,7 +115,7 @@ struct GerenciaDat{
         bool imovelValido{true};
         int comparaValores;
 
-        while(indexInicio - 1 >= 0 && imovelValido){
+        while(indexInicio - 1 >= 0 && imovelValido){ // procura registros antes do primeiro correspondente
 
             imovelValido = false;
 
@@ -120,7 +133,7 @@ struct GerenciaDat{
 
         imovelValido = true;
 
-        while(indexFinal + 1 <= numRegistros - 1 && imovelValido){
+        while(indexFinal + 1 <= numRegistros - 1 && imovelValido){ // procura registros depois do primeiro correspondente
 
             imovelValido = false;
 
@@ -148,13 +161,15 @@ struct GerenciaDat{
         escreverCabecalho();
 
         if(numImoveisFiltrados > 1){
-            quickSort(imoveisFiltrados, 0, numImoveisFiltrados - 1);
+            // aplica ordenação aos valores filtrados
+            quickSort(imoveisFiltrados, 0, numImoveisFiltrados - 1); 
         }
 
         tipoOrdenacao = filtroTabela->first;
         sentidoOrdenacao = 1;
         escreverCabecalho();
         
+        //retorna os valores filtrados
         return std::make_pair(numImoveisFiltrados, imoveisFiltrados);
 
     }
@@ -167,6 +182,8 @@ struct GerenciaDat{
             return;
 
         Imovel *imoveis = new Imovel[numImoveis];
+
+        //puxa todos os dados para memoria, ordena e reescreve o arquivo
 
         arquivoDat.seekp(3*sizeof(int)); //posiciona ponteiro de leitura para depois do cabecalho
         arquivoDat.read((char *) imoveis, numImoveis * sizeof(Imovel));
@@ -198,6 +215,8 @@ struct GerenciaDat{
 
         while(i <= j){
             
+            //aplica um particionamento especifico para cada tipo de dado
+
             switch(tipoOrdenacao){
                 case 2:
                     houveTroca = particionaEndereco(imoveis, indexInicio, i, j, sentidoOrdenacao);
@@ -258,6 +277,9 @@ struct GerenciaDat{
         if(!numRegistros)
             return -1;
 
+        // ordena os valores de acordo com o filtro aplicado
+        // a busca só faz sentido se os valores estão ordenados de acordo com o filtro especifico utilizado
+
         tipoOrdenacao = filtroTabela->first;
         sentidoOrdenacao = 1;
         escreverCabecalho();
@@ -267,6 +289,8 @@ struct GerenciaDat{
         int indexInicio{0}, indexFinal{numRegistros - 1}, meio, comparaValores;
 
         Imovel aux;
+
+        // busca binaria no arquivo binario
 
         while(indexInicio <= indexFinal){
 
@@ -280,6 +304,8 @@ struct GerenciaDat{
             }catch(...){
                 return -1;
             }
+
+            // calcula os indices da busca de acordo com o resultado da comparação
 
             if(!comparaValores)
                 return meio;
@@ -296,6 +322,8 @@ struct GerenciaDat{
     }
 
     int comparaImoveis(std::pair<int, std::string> *filtroTabela, Imovel *imovel){
+
+        // aplica uma função especifica para comparar os diferentes campos do imovel
 
         switch(filtroTabela->first){
                 case 4:
@@ -342,8 +370,10 @@ struct GerenciaDat{
 
     void deletarRegistro(int idImovel){
 
+        // busca binaria pelo id (campo confiavel para identificar registro)
+
         std::pair<int, std::string> filtroDeletarRegistro = std::make_pair(1, std::to_string(idImovel));
-        int indexImovel = buscaBinaria(&filtroDeletarRegistro);
+        int indexImovel = buscaBinaria(&filtroDeletarRegistro); 
 
         if(indexImovel == -1)
             return;
@@ -352,6 +382,8 @@ struct GerenciaDat{
 
         Imovel aux;
 
+        // desloca todos os valores posteriores ao registro deletado, uma casa à esquerda (para trás)
+
         for(int i{indexImovel + 1}; i<numRegistros; i++){
             arquivoDat.seekp(saltoCabecalho + i * sizeof(Imovel));
             arquivoDat.read((char *) &aux, sizeof(Imovel));
@@ -359,12 +391,14 @@ struct GerenciaDat{
             arquivoDat.write((char *) &aux, sizeof(Imovel));
         }
 
+        // atualiza o numero de registros
         numRegistros--;
         escreverCabecalho();
     }
 
     Imovel* buscarImovelSelecionado(int idImovel){
 
+        // busca binaria pelo id (campo confiavel para identificar registro)
         std::pair<int, std::string> filtroDeletarRegistro = std::make_pair(1, std::to_string(idImovel));
         int indexImovel = buscaBinaria(&filtroDeletarRegistro);
 
@@ -372,6 +406,8 @@ struct GerenciaDat{
             return {nullptr};
         
         int saltoCabecalho = 3*sizeof(int);
+
+        // busca o imovel no arquivo, aloca dinamicamente e retorna-o
 
         Imovel *aux = new Imovel;
         arquivoDat.seekp(saltoCabecalho + indexImovel * sizeof(Imovel));
@@ -383,13 +419,18 @@ struct GerenciaDat{
     int calculaIdNovoImovel(){
 
         if(!numRegistros)
-            return 1;
+            return 1; // se não houver registros o id do proximo imovel a ser criado é 1
+
+        
+        //ordena os arquivos pelo id, de maneira crescente
         
         tipoOrdenacao = 1;
         sentidoOrdenacao = 1;
         escreverCabecalho();
 
         ordenaArquivo();
+
+        // busca o ultimo registro (possui o maior id), e incrementa em 1
 
         Imovel aux;
 
@@ -402,6 +443,8 @@ struct GerenciaDat{
 
     void editarImovel(std::string *valoresImovel){
 
+        // busca binaria pelo id (campo confiavel para identificar registro)
+
         std::pair<int, std::string> filtroEditarRegistro = std::make_pair(1, valoresImovel[0]);
         int indexImovel = buscaBinaria(&filtroEditarRegistro);
 
@@ -412,6 +455,9 @@ struct GerenciaDat{
 
         Imovel aux;
         aux.construtor(valoresImovel);
+
+        // cria um registro de acordo com os valores informados pelo usuário
+        // sobreescreve o registro antigo
 
         arquivoDat.seekp(saltoCabecalho + indexImovel * sizeof(Imovel));
         arquivoDat.write((char *) &aux, sizeof(Imovel));
@@ -426,10 +472,13 @@ struct GerenciaDat{
         Imovel aux;
         aux.construtor(valoresImovel);
 
+        // cria um registro de acordo com os valores informados pelo usuário
+        // adiciona no final do arquivo binario
+
         arquivoDat.seekp(saltoCabecalho + numRegistros * sizeof(Imovel));
         arquivoDat.write((char *) &aux, sizeof(Imovel));
 
-        //chamar odenacao
+        // atualiza o numero de registros
         numRegistros++;
         escreverCabecalho();
 

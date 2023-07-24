@@ -3,6 +3,8 @@
 
 struct Imovel{
 
+    // struct imóvel
+
     int id{-1}, numQuartos, numBanheiros, vagasGaragem;
     char endereco[100], descricao[300], imobiliaria[100];
     float area, precoAluguel, condominio, iptu, seguroIncendio;
